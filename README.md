@@ -14,10 +14,33 @@ pip3 install -r requirements.txt
 gcloud auth application-default login
 
 # Start server (serves UI + WebSocket proxy)
-python3 server.py
+HTTP_PORT=3001 WS_PORT=9001 python3 server.py
 
 # Open browser
-open http://localhost:8000
+open http://localhost:3001
+```
+
+## Nginx routing (recommended for production)
+
+If you run the UI behind `https://singleinterfacews.pragyaa.ai/kiavoiceagent/` and want the UI websocket on:
+
+- `wss://singleinterfacews.pragyaa.ai/geminiWs`
+
+then proxy `/kiavoiceagent/` to the HTTP server and `/geminiWs` to the WS proxy:
+
+```nginx
+location ^~ /kiavoiceagent/ {
+  proxy_pass http://127.0.0.1:3001/;
+}
+
+location = /geminiWs {
+  proxy_pass http://127.0.0.1:9001;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  proxy_read_timeout 3600s;
+  proxy_send_timeout 3600s;
+}
 ```
 
 ## Features

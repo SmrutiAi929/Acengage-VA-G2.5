@@ -33,9 +33,9 @@ def _env_bool(name: str, default: bool) -> bool:
 DEBUG = _env_bool("DEBUG", False)  # Set to True for verbose logging
 
 # Ports are configurable so we can run alongside other services on the VM.
-# Defaults chosen for the Kia test deployment.
+# Telephony uses 8080(/ws) + 8081(/wsNew1) externally, so the UI Gemini WS must not bind to 8081.
 HTTP_PORT = int(os.getenv("HTTP_PORT", "3001"))  # Port for HTTP server
-WS_PORT = int(os.getenv("WS_PORT", "8081"))  # Port for WebSocket server
+WS_PORT = int(os.getenv("WS_PORT", "9001"))  # Port for WebSocket server (internal; proxy via nginx /geminiWs)
 
 
 def generate_access_token():
