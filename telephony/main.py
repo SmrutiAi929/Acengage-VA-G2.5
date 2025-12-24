@@ -114,8 +114,16 @@ async def handle_client(client_ws, path: str):
     cfg = Config()
     Config.validate(cfg)
 
-    # Only accept configured path (e.g. /ws or /wsNew1)
-    if path != cfg.WS_PATH:
+    # websockets passes the request path including querystring (e.g. "/wsNew1?agent=spotlight").
+    # Waybeo/Ozonetel commonly append query params; accept those as long as the base path matches.
+    base_path = (path or "").split("?", 1)[0]
+
+    # Only accept configured base path (e.g. /ws or /wsNew1)
+    if base_path != cfg.WS_PATH:
+        if cfg.DEBUG:
+            print(
+                f"[telephony] ❌ Rejecting connection: path={path!r} base_path={base_path!r} expected={cfg.WS_PATH!r}"
+            )
         await client_ws.close(code=1008, reason="Invalid path")
         return
 
