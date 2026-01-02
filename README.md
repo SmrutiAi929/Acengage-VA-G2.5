@@ -1,101 +1,118 @@
-# Gemini Live API - Vanilla JS
+# Kia VoiceAgent (Gemini Live 2.5) — UI + Telephony WebSockets
 
-WebSocket client for Google's Gemini Live API with audio/video streaming support. No frameworks, just vanilla JavaScript.
+This repo is a **VoiceAgent WebSocket stack** for:
 
-[![Plain JS Demo Video](https://img.youtube.com/vi/RLM1Qsp64WU/hqdefault.jpg)](https://www.youtube.com/watch?v=RLM1Qsp64WU)
+- **Browser UI testing** (mic ↔ Gemini Live ↔ speaker) over **WSS** (required for browser audio APIs)
+- **Telephony testing (Ozonetel/Waybeo style)** over **WS/WSS** using the same Gemini Live conversation flow
 
-## Quick Start
+It is built around **Gemini Live** using the model:
+
+- `gemini-live-2.5-flash-native-audio`
+
+---
+
+## What runs where
+
+### 1) Browser UI + Gemini WS proxy (`server.py`)
+- **HTTP UI**: defaults to `http://127.0.0.1:3001`
+- **WS proxy (internal)**: defaults to `ws://127.0.0.1:9001`
+- Intended to be exposed via **nginx** as:
+  - UI: `https://<domain>/kiavoiceagent/`
+  - UI WS: `wss://<domain>/geminiWs` → `127.0.0.1:9001`
+
+### 2) Telephony WS service (`telephony/main.py`)
+- **Prod**: `0.0.0.0:8080/ws`
+- **Test**: `0.0.0.0:8081/wsNew1`
+- Accepts `/wsNew1?agent=spotlight` style query strings.
+
+For telephony details, see `telephony/README.md`.
+
+---
+
+## Quick start (local dev)
+
+### UI + Gemini WS proxy
 
 ```bash
-# Install dependencies
-pip3 install -r requirements.txt
-
-# Authenticate with Google Cloud
+cd Kia-VA-G2.5
+python3 -m pip install -r requirements.txt
 gcloud auth application-default login
-
-# Start server (serves UI + WebSocket proxy)
-python3 server.py
-
-# Open browser
-open http://localhost:8000
+HTTP_PORT=3001 WS_PORT=9001 python3 server.py
 ```
 
-## Features
+Open `http://localhost:3001` and set:
+- **Proxy WebSocket URL**: `ws://localhost:9001` (local) or `wss://<domain>/geminiWs` (nginx)
+- **Project ID**: your GCP project (e.g. `voiceagentprojects`)
+- **Model**: `gemini-live-2.5-flash-native-audio`
 
-- **Real-time audio/video streaming** to Gemini
-- **Custom tools** (alerts, CSS injection)
-- **Device selection** for mic/camera
-- **Auto-authentication** via proxy server
-- **Zero config** - proxy URL pre-configured
+### Telephony service (test port)
 
-## Project Structure
-
-```
-/
-├── server.py      # WebSocket proxy + HTTP server
-├── requirements.txt     # Python dependencies
-└── frontend/
-    ├── index.html      # UI
-    ├── geminilive.js   # Gemini API client
-    ├── mediaUtils.js   # Audio/video streaming
-    ├── tools.js        # Custom tool definitions
-    └── script.js       # App logic
+```bash
+cd Kia-VA-G2.5/telephony
+python3 -m pip install -r requirements.txt
+GCP_PROJECT_ID=voiceagentprojects HOST=0.0.0.0 PORT=8081 WS_PATH=/wsNew1 python3 main.py
 ```
 
-## Core APIs
+---
 
-### GeminiLive Client
+## Ozonetel / Waybeo testing (telephony)
 
-```javascript
-const client = new GeminiLiveAPI(proxyUrl, projectId, model);
-client.addFunction(toolInstance); // Add custom tools
-client.connect(accessToken); // Connect (token optional with proxy)
-client.sendText("Hello"); // Send text
-client.sendAudioMessage(base64); // Send audio
-client.sendImageMessage(base64); // Send image
-```
+You can point the provider to either:
 
-### Media Streaming
+- **Direct VM port (WS)**: `ws://<VM_IP>:8081/wsNew1?agent=spotlight`
+- **Via nginx (WSS)**: `wss://<telephony-domain>/wsNew1?agent=spotlight`
 
-```javascript
-// Audio streaming
-const audioStreamer = new AudioStreamer(client);
-await audioStreamer.start(deviceId); // Optional device ID
+> Use **WSS** if your provider requires TLS. If the provider can connect to a raw VM port, WS is simplest.
 
-// Video streaming
-const videoStreamer = new VideoStreamer(client);
-await videoStreamer.start({ fps: 1, deviceId: "..." });
+---
 
-// Audio playback
-const player = new AudioPlayer();
-await player.play(base64PCM);
-```
+## Nginx routing (recommended on VM)
 
-### Custom Tools
+You need HTTPS for the UI (browser mic/worklets require a secure context), and you should terminate WSS at nginx.
 
-```javascript
-class MyTool extends FunctionCallDefinition {
-  constructor() {
-    super("tool_name", "description", parameters, required);
-  }
+Example snippets (adapt to your vhost):
 
-  functionToCall(params) {
-    // Tool implementation
-  }
+```nginx
+location ^~ /kiavoiceagent/ {
+  proxy_pass http://127.0.0.1:3001/;
+}
+
+location = /geminiWs {
+  proxy_pass http://127.0.0.1:9001;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  proxy_read_timeout 3600s;
+  proxy_send_timeout 3600s;
 }
 ```
 
-## Configuration Options
+Telephony WSS termination (if used) is typically a separate server_name (example `ws-...`) that proxies to `127.0.0.1:8081`.
 
-- **Model**: `gemini-live-2.5-flash-native-audio` (default)
-- **Voice**: Puck, Charon, Kore, Fenrir, Aoede
-- **Response**: Audio, text, or both
-- **Tools**: Custom functions or Google grounding
+---
 
-## Development
+## Systemd (auto-start on reboot)
 
-The proxy server handles:
+On the VM, run these as services:
 
-- Google Cloud authentication
-- WebSocket proxying to Gemini API
-- Static file serving from `frontend/`
+- **UI + Gemini WS proxy**: `server.py` (HTTP 3001 + WS 9001)
+- **Telephony test**: `telephony/main.py` (WS 8081 `/wsNew1`)
+- **Telephony prod**: `telephony/main.py` (WS 8080 `/ws`)
+
+If you already have unit files, keep them. If not, ask and we’ll generate the exact units for your VM paths.
+
+---
+
+## Customization points (for other teams)
+
+- **Prompt / greeting**: update the system instructions in `frontend/index.html` (UI) and `telephony/kia_prompt.txt` (telephony)
+- **Voice**: UI voice is chosen in `frontend/index.html`; telephony defaults live in telephony config
+- **Routing**: keep UI WS separate from telephony WS to avoid port collisions
+- **Model**: keep fixed to `gemini-live-2.5-flash-native-audio` unless you explicitly want to test other models
+
+---
+
+## Licensing
+
+- See `LICENSE` for commercial terms for this repository.
+- See `THIRD_PARTY_NOTICES.md` and `LICENSES/Apache-2.0.txt` for third‑party license attributions that must be retained.

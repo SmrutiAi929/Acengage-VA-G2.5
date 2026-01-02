@@ -1,0 +1,59 @@
+Kia VoiceAgent — Commercial License Terms
+
+IMPORTANT: This is a template commercial/proprietary license intended for internal use by the
+Pragyaa AI team and authorized customers/partners. It is not legal advice.
+
+By using, copying, modifying, deploying, or distributing this repository (“Software”), you
+agree to the terms below.
+
+1) License Grant
+Pragyaa AI (“Licensor”) grants you (“Licensee”) a limited, non-exclusive, non-transferable,
+revocable license to use the Software solely for internal evaluation, development, and
+deployment of voice-agent applications for Licensee’s business purposes, subject to this
+License and any separate commercial agreement between Licensor and Licensee.
+
+2) Restrictions
+Unless explicitly permitted in a separate written agreement with Licensor, Licensee must not:
+- Sell, sublicense, rent, lease, or redistribute the Software (in source or binary form)
+  to third parties.
+- Remove or alter copyright, trademark, or attribution notices.
+- Use the Software to create a competing product or service.
+
+3) Ownership
+The Software is licensed, not sold. Licensor retains all right, title, and interest in and to
+the Software, including all intellectual property rights.
+
+4) Third‑Party Components (Superseding Clause)
+This Software may include or be derived from third‑party software (“Third‑Party Components”)
+that is licensed under separate open-source terms. Those third‑party license terms govern
+use of the Third‑Party Components and supersede any conflicting terms in this License for
+those components.
+
+See:
+- THIRD_PARTY_NOTICES.md
+- LICENSES/Apache-2.0.txt
+
+5) No Warranty
+THE SOFTWARE IS PROVIDED “AS IS” AND “AS AVAILABLE”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON‑INFRINGEMENT.
+
+6) Limitation of Liability
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT WILL LICENSOR BE LIABLE FOR ANY INDIRECT,
+INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE,
+DATA, OR BUSINESS OPPORTUNITY, ARISING OUT OF OR RELATED TO THE SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGES.
+
+7) Termination
+This License terminates immediately if Licensee breaches any term. Upon termination,
+Licensee must stop using the Software and destroy all copies in its possession or control,
+except to the extent retention is required by law or a separate written agreement.
+
+8) Support
+Support, SLAs, and maintenance (if any) are only provided under a separate written agreement.
+
+9) Governing Law
+Governing law and venue are as specified in the applicable commercial agreement. If no such
+agreement exists, the parties will agree in writing before any dispute proceeds.
+
+
