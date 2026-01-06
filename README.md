@@ -105,7 +105,7 @@ If you already have unit files, keep them. If not, ask and we’ll generate the 
 
 ## Customization points (for other teams)
 
-- **Prompt / greeting**: update the system instructions in `frontend/index.html` (UI) and `telephony/kia_prompt.txt` (telephony)
+- **Prompt / greeting**: update the system instructions in `frontend/index.html` (UI) and `telephony/Acengage Prompt.txt` (telephony)
 - **Voice**: UI voice is chosen in `frontend/index.html`; telephony defaults live in telephony config
 - **Routing**: keep UI WS separate from telephony WS to avoid port collisions
 - **Model**: keep fixed to `gemini-live-2.5-flash-native-audio` unless you explicitly want to test other models

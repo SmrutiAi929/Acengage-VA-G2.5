@@ -39,7 +39,7 @@ class TelephonySession:
 
 
 def _read_prompt_text() -> str:
-    prompt_file = os.getenv("PROMPT_FILE", os.path.join(os.path.dirname(__file__), "kia_prompt.txt"))
+    prompt_file = os.getenv("PROMPT_FILE", os.path.join(os.path.dirname(__file__), "Acengage Prompt.txt"))
     try:
         with open(prompt_file, "r", encoding="utf-8") as f:
             return f.read()
