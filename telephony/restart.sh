@@ -20,7 +20,12 @@ sleep 1
 # Start service
 echo "Starting service..."
 source ../venv/bin/activate
-nohup python3 -u main.py > /dev/null 2>&1 &
+export HOST=0.0.0.0
+export PORT=8084
+export WS_PATH=${WS_PATH:-/wsAcengage}
+export GCP_PROJECT_ID=${GCP_PROJECT_ID:-voiceagentprojects}
+export DEBUG=${DEBUG:-true}
+nohup python3 -u main.py > telephony.log 2>&1 &
 sleep 3
 
 # Verify it's running
@@ -29,7 +34,7 @@ if [ -n "$NEW_PID" ]; then
     echo "✅ Service restarted successfully!"
     echo "   PID: $NEW_PID"
     echo "   Port: 8084"
-    echo "   Endpoint: ws://0.0.0.0:8084/ws"
+    echo "   Endpoint: ws://0.0.0.0:8084${WS_PATH}"
     echo ""
     echo "Recent logs:"
     tail -5 telephony.log
