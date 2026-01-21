@@ -57,9 +57,9 @@ class GeminiLiveSession:
         }
         ssl_context = ssl.create_default_context(cafile=certifi.where())
 
-        # Use extra_headers for broad compatibility with websockets versions.
+        # websockets 16.0+ uses 'additional_headers' instead of 'extra_headers'
         self._ws = await websockets.connect(
-            self.cfg.service_url, extra_headers=headers, ssl=ssl_context
+            self.cfg.service_url, additional_headers=headers, ssl=ssl_context
         )
 
         # Send setup message
